@@ -1,0 +1,30 @@
+
+<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="96" height="96" rx="14.399999999999999" fill="#2563eb"/>
+  
+  <!-- Outer track oval -->
+  <ellipse cx="48" cy="48" rx="40.32" ry="33.599999999999994" 
+           fill="none" stroke="#ffffff" stroke-width="5.76"/>
+  
+  <!-- Inner track oval -->
+  <ellipse cx="48" cy="48" rx="30.72" ry="24" 
+           fill="none" stroke="#ffffff" stroke-width="3.84"/>
+  
+  <!-- Track lanes (dashed lines) -->
+  <ellipse cx="48" cy="48" rx="35.519999999999996" ry="28.799999999999997" 
+           fill="none" stroke="#ffffff" stroke-width="1.44" 
+           stroke-dasharray="2.88,1.92" opacity="0.7"/>
+  
+  <!-- Start/finish line -->
+  <line x1="48" y1="14.399999999999999" x2="48" y2="24" 
+        stroke="#ffffff" stroke-width="2.4000000000000004" stroke-linecap="round"/>
+  
+  <!-- HQ text in center -->
+  <text x="48" y="55.67999999999999" text-anchor="middle" fill="#ffffff" 
+        font-family="Arial, sans-serif" font-size="17.28" font-weight="bold">HQ</text>
+  
+  <!-- Small athletics elements -->
+  <circle cx="19.200000000000003" cy="28.799999999999997" r="2.4000000000000004" fill="#ffffff" opacity="0.8"/>
+  <circle cx="76.80000000000001" cy="67.19999999999999" r="2.4000000000000004" fill="#ffffff" opacity="0.8"/>
+</svg>
