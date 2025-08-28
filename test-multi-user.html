@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackHQ Multi-User System Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .user-info { background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 TrackHQ Multi-User System Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: User Creation</h2>
+        <button onclick="createTestUser('John Athlete')">Create John Athlete</button>
+        <button onclick="createTestUser('Sarah Runner')">Create Sarah Runner</button>
+        <button onclick="createTestUser('Mike Coach')">Create Mike Coach</button>
+        <div id="creation-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: User Switching</h2>
+        <button onclick="switchToUser('John Athlete')">Switch to John</button>
+        <button onclick="switchToUser('Sarah Runner')">Switch to Sarah</button>
+        <button onclick="switchToUser('Mike Coach')">Switch to Mike</button>
+        <div id="switch-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Data Isolation</h2>
+        <button onclick="addTestData('workout')">Add Workout Data</button>
+        <button onclick="addTestData('goal')">Add Goal Data</button>
+        <button onclick="checkDataIsolation()">Check Data Isolation</button>
+        <div id="isolation-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Current System Status</h2>
+        <button onclick="showSystemStatus()">Show System Status</button>
+        <button onclick="clearAllData()">Clear All Test Data</button>
+        <div id="status-results"></div>
+    </div>
+
+    <script>
+        // Import UserManager functionality (simplified for testing)
+        class TestUserManager {
+            static USERS_KEY = 'trackhq_users'
+            static CURRENT_USER_KEY = 'trackhq_current_user'
+
+            static createUser(name) {
+                const users = this.getAllUsers()
+                const newUser = {
+                    id: Date.now().toString(),
+                    name: name,
+                    email: `${name.toLowerCase().replace(' ', '.')}@test.com`,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3b82f6&color=fff`,
+                    createdAt: new Date().toISOString(),
+                    preferences: {
+                        units: 'metric',
+                        theme: 'light',
+                        notifications: true
+                    }
+                }
+                
+                users.push(newUser)
+                localStorage.setItem(this.USERS_KEY, JSON.stringify(users))
+                return newUser
+            }
+
+            static getAllUsers() {
+                try {
+                    const users = localStorage.getItem(this.USERS_KEY)
+                    return users ? JSON.parse(users) : []
+                } catch {
+                    return []
+                }
+            }
+
+            static setCurrentUser(userId) {
+                localStorage.setItem(this.CURRENT_USER_KEY, userId)
+            }
+
+            static getCurrentUser() {
+                try {
+                    const currentUserId = localStorage.getItem(this.CURRENT_USER_KEY)
+                    if (!currentUserId) return null
+                    
+                    const users = this.getAllUsers()
+                    return users.find(user => user.id === currentUserId) || null
+                } catch {
+                    return null
+                }
+            }
+
+            static getUserDataKey(key) {
+                const currentUser = this.getCurrentUser()
+                return currentUser ? `${currentUser.id}_${key}` : key
+            }
+        }
+
+        function createTestUser(name) {
+            try {
+                const user = TestUserManager.createUser(name)
+                document.getElementById('creation-results').innerHTML += 
+                    `<div class="user-info success">✅ Created user: ${user.name} (ID: ${user.id})</div>`
+            } catch (error) {
+                document.getElementById('creation-results').innerHTML += 
+                    `<div class="user-info error">❌ Failed to create ${name}: ${error.message}</div>`
+            }
+        }
+
+        function switchToUser(name) {
+            try {
+                const users = TestUserManager.getAllUsers()
+                const user = users.find(u => u.name === name)
+                
+                if (user) {
+                    TestUserManager.setCurrentUser(user.id)
+                    document.getElementById('switch-results').innerHTML += 
+                        `<div class="user-info success">✅ Switched to: ${user.name}</div>`
+                } else {
+                    document.getElementById('switch-results').innerHTML += 
+                        `<div class="user-info error">❌ User ${name} not found</div>`
+                }
+            } catch (error) {
+                document.getElementById('switch-results').innerHTML += 
+                    `<div class="user-info error">❌ Failed to switch to ${name}: ${error.message}</div>`
+            }
+        }
+
+        function addTestData(type) {
+            try {
+                const currentUser = TestUserManager.getCurrentUser()
+                if (!currentUser) {
+                    throw new Error('No current user selected')
+                }
+
+                const key = TestUserManager.getUserDataKey(`test_${type}`)
+                const data = {
+                    user: currentUser.name,
+                    type: type,
+                    timestamp: new Date().toISOString(),
+                    data: `Test ${type} data for ${currentUser.name}`
+                }
+
+                localStorage.setItem(key, JSON.stringify(data))
+                document.getElementById('isolation-results').innerHTML += 
+                    `<div class="user-info success">✅ Added ${type} data for ${currentUser.name}</div>`
+            } catch (error) {
+                document.getElementById('isolation-results').innerHTML += 
+                    `<div class="user-info error">❌ Failed to add ${type} data: ${error.message}</div>`
+            }
+        }
+
+        function checkDataIsolation() {
+            try {
+                const users = TestUserManager.getAllUsers()
+                let results = '<h3>Data Isolation Check:</h3>'
+
+                users.forEach(user => {
+                    TestUserManager.setCurrentUser(user.id)
+                    const workoutKey = TestUserManager.getUserDataKey('test_workout')
+                    const goalKey = TestUserManager.getUserDataKey('test_goal')
+                    
+                    const workoutData = localStorage.getItem(workoutKey)
+                    const goalData = localStorage.getItem(goalKey)
+                    
+                    results += `<div class="user-info">
+                        <strong>${user.name}:</strong><br>
+                        Workout Data: ${workoutData ? '✅ Present' : '❌ Missing'}<br>
+                        Goal Data: ${goalData ? '✅ Present' : '❌ Missing'}
+                    </div>`
+                })
+
+                document.getElementById('isolation-results').innerHTML += results
+            } catch (error) {
+                document.getElementById('isolation-results').innerHTML += 
+                    `<div class="user-info error">❌ Failed to check isolation: ${error.message}</div>`
+            }
+        }
+
+        function showSystemStatus() {
+            try {
+                const users = TestUserManager.getAllUsers()
+                const currentUser = TestUserManager.getCurrentUser()
+                
+                let status = `<h3>System Status:</h3>
+                    <div class="user-info">
+                        <strong>Total Users:</strong> ${users.length}<br>
+                        <strong>Current User:</strong> ${currentUser ? currentUser.name : 'None'}<br>
+                        <strong>Users List:</strong><br>
+                        ${users.map(u => `• ${u.name} (${u.id})`).join('<br>')}
+                    </div>`
+
+                document.getElementById('status-results').innerHTML = status
+            } catch (error) {
+                document.getElementById('status-results').innerHTML = 
+                    `<div class="user-info error">❌ Failed to get status: ${error.message}</div>`
+            }
+        }
+
+        function clearAllData() {
+            try {
+                localStorage.removeItem(TestUserManager.USERS_KEY)
+                localStorage.removeItem(TestUserManager.CURRENT_USER_KEY)
+                
+                // Clear test data
+                const keys = Object.keys(localStorage)
+                keys.forEach(key => {
+                    if (key.includes('test_')) {
+                        localStorage.removeItem(key)
+                    }
+                })
+
+                document.getElementById('status-results').innerHTML = 
+                    '<div class="user-info success">✅ All test data cleared</div>'
+                
+                // Clear other result divs
+                document.getElementById('creation-results').innerHTML = ''
+                document.getElementById('switch-results').innerHTML = ''
+                document.getElementById('isolation-results').innerHTML = ''
+            } catch (error) {
+                document.getElementById('status-results').innerHTML = 
+                    `<div class="user-info error">❌ Failed to clear data: ${error.message}</div>`
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSystemStatus()
+        })
+    </script>
+</body>
+</html>
