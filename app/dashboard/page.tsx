@@ -169,10 +169,10 @@ export default function Dashboard() {
     
     if (category === 'sport-specific') {
       // Get unique subcategories for sport-specific exercises
-      const subcategories = [...new Set(exerciseDatabase
-        .filter(ex => ex.category === 'sport-specific' && ex.subcategory)
-        .map(ex => ex.subcategory!))]
-      setAvailableSubcategories(subcategories)
+const subcategorySet = new Set(exerciseDatabase
+  .filter(ex => ex.category === 'sport-specific' && ex.subcategory)
+  .map(ex => ex.subcategory!))
+const subcategories = Array.from(subcategorySet)
     } else {
       // For non-sport-specific categories, show exercises directly
       const exercises = exerciseDatabase.filter(ex => ex.category === category)
