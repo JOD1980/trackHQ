@@ -8,22 +8,25 @@ import { workoutTemplates, WorkoutTemplate, getTemplatesByCategory, searchTempla
 import { storageService, WorkoutEntry } from '../../lib/storage'
 
 export default function Dashboard() {
-  const [todayEntry, setTodayEntry] = useState({
-    exercises: '',
-    selectedExercises: [] as Array<{
-      exercise: Exercise,
-      variation?: string,
-      sets?: number,
-      reps?: number,
-      weight?: number,
-      time?: number,
-      distance?: number,
-      notes?: string
-    }>,
-    positives: '',
-    improvements: '',
-    goals: ''
-  })
+ const [todayEntry, setTodayEntry] = useState({
+  exercises: '',
+  selectedExercises: [] as Array<{
+    exercise: Exercise,
+    variation?: string,
+    sets?: number,
+    reps?: number,
+    weight?: number,
+    time?: number,
+    distance?: number,
+    notes?: string
+  }>,
+  positives: '',
+  improvements: '',
+  goals: '',
+  mood: 0,
+  energy: 0,
+  sleep: 0
+})
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
